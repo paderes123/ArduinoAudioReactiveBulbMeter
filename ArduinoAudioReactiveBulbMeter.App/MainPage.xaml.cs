@@ -14,6 +14,12 @@ namespace ArduinoAudioReactiveBulbMeter.App
         public MainPage()
         {
             InitializeComponent();
+
+            InitializeSerialPorts();
+            DisplayAvailableSoundOutput();
+
+            // Subscribe to Disappearing event to cleanup
+            this.Disappearing += MainPage_Disappearing;
         }
 
         private void RefreshPorts_Clicked(object sender, EventArgs e)
@@ -253,6 +259,36 @@ namespace ArduinoAudioReactiveBulbMeter.App
                 await ConnectToArduino();
             else
                 await DisconnectFromArduino();
+        }
+
+        private async Task CleanupSerialPort()
+        {
+            if (_serialPort != null)
+            {
+                try
+                {
+                    if (_serialPort.IsOpen)
+                        _serialPort.Close();
+                }
+                catch (IOException ex)
+                {
+                    await DisplayAlertAsync("Error", $"Error closing serial port: {ex.Message}", "Ok");
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlertAsync("Error", $"Error during serial port cleanup: {ex.Message}", "Ok");
+                }
+                finally
+                {
+                    _serialPort.Dispose();
+                    _serialPort = null;
+                }
+            }
+        }
+
+        private async void MainPage_Disappearing(object? sender, EventArgs e)
+        {
+            await CleanupSerialPort();
         }
 
         private void RefreshAudioOutputDevicesButton_Click(object sender, EventArgs e)

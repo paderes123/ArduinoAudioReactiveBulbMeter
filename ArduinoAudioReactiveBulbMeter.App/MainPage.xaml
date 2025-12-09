@@ -66,7 +66,8 @@
                     <HorizontalStackLayout Spacing="10">
                         <Label Text="Audio Visualizer"
                              VerticalOptions="Center"/>
-                        <Switch x:Name="AudioVisualizerSwitch"/>
+                        <Switch x:Name="AudioVisualizerSwitch"
+                                Toggled="AudioVisualizerSwitch_Toggled"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Border>
