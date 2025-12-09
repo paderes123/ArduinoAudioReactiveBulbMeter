@@ -6,6 +6,8 @@ namespace ArduinoAudioReactiveBulbMeter.App
     {
         private SerialPort? _serialPort;
         private bool isConnectedToArduino = false;
+        private CancellationTokenSource _cancellationTokenSource = new();
+        private Task? _audioVisualizerTask;
 
         public MainPage()
         {
@@ -56,9 +58,48 @@ namespace ArduinoAudioReactiveBulbMeter.App
 
             if (_serialPort != null && _serialPort.IsOpen)
                 _serialPort.Close();
+
+            await StopAudioVisualizerAsync();
+            ClearLightIndicators();
             AudioVisualizerSwitch.IsToggled = false;
         }
-        
+
+        private async Task StopAudioVisualizerAsync()
+        {
+            if (_audioVisualizerTask != null && !_audioVisualizerTask.IsCompleted)
+            {
+                _cancellationTokenSource?.Cancel();
+                try
+                {
+                    await _audioVisualizerTask;
+                }
+                catch (OperationCanceledException) { }
+            }
+        }
+
+        private void SetLedColor(int ledNumber, Color color)
+        {
+            switch (ledNumber)
+            {
+                case 1: Light1.BackgroundColor = color; break;
+                case 2: Light2.BackgroundColor = color; break;
+                case 3: Light3.BackgroundColor = color; break;
+                case 4: Light4.BackgroundColor = color; break;
+                case 5: Light5.BackgroundColor = color; break;
+                case 6: Light6.BackgroundColor = color; break;
+                case 7: Light7.BackgroundColor = color; break;
+                case 8: Light8.BackgroundColor = color; break;
+            }
+        }
+
+        private void ClearLightIndicators()
+        {
+            for (int i = 1; i <= 8; i++)
+            {
+                SetLedColor(i, Colors.Transparent);
+            }
+        }
+
         private async void ConnectButton_Clicked(object sender, EventArgs e)
         {
             if (!isConnectedToArduino)
