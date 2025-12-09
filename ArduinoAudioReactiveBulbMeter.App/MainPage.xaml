@@ -32,6 +32,7 @@
                             Clicked="RefreshPorts_Clicked"/>
 
                     <Button x:Name="ConnectButton"
+                          Clicked="ConnectButton_Clicked"
                           Text="Connect"
                           BackgroundColor="#0078FF"
                           TextColor="White"
@@ -59,7 +60,8 @@
                     <Picker x:Name="AudioDevicePicker"
                           Title="Select Audio Device"/>
 
-                    <Button Text="Refresh Audio Devices"/>
+                    <Button Text="Refresh Audio Devices"
+                            Clicked="RefreshAudioOutputDevicesButton_Click"/>
 
                     <HorizontalStackLayout Spacing="10">
                         <Label Text="Audio Visualizer"
