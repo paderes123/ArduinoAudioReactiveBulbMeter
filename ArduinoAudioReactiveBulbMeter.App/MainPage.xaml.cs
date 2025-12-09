@@ -224,6 +224,29 @@ namespace ArduinoAudioReactiveBulbMeter.App
             }
         }
 
+        private void RestartAudioVisualizer()
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _audioVisualizerTask = PerformAudioVisualizerAsync(8, _cancellationTokenSource.Token);
+        }
+
+
+        private async void AudioVisualizerSwitch_Toggled(object sender, ToggledEventArgs e)
+        {
+            if (e.Value) // ON
+            {
+                RestartAudioVisualizer();
+            }
+            else // OFF
+            {
+                await StopAudioVisualizerAsync();
+                ClearLightIndicators();
+            }
+        }
+
         private async void ConnectButton_Clicked(object sender, EventArgs e)
         {
             if (!isConnectedToArduino)
