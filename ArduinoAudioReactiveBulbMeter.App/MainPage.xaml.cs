@@ -5,11 +5,13 @@ namespace ArduinoAudioReactiveBulbMeter.App
 {
     public partial class MainPage : ContentPage
     {
+        #region Field Variables
         private SerialPort? _serialPort;
         private bool isConnectedToArduino = false;
         private CancellationTokenSource _cancellationTokenSource = new();
         private readonly Dictionary<string, MMDevice> audioDevices = new();
         private Task? _audioVisualizerTask;
+        #endregion
 
         public MainPage()
         {
@@ -22,11 +24,7 @@ namespace ArduinoAudioReactiveBulbMeter.App
             this.Disappearing += MainPage_Disappearing;
         }
 
-        private void RefreshPorts_Clicked(object sender, EventArgs e)
-        {
-            InitializeSerialPorts();
-        }
-
+        #region Methods
         private async Task ConnectToArduino()
         {
             try
@@ -239,28 +237,27 @@ namespace ArduinoAudioReactiveBulbMeter.App
             _audioVisualizerTask = PerformAudioVisualizerAsync(8, _cancellationTokenSource.Token);
         }
 
-
-        private async void AudioVisualizerSwitch_Toggled(object sender, ToggledEventArgs e)
+        private void InitializeSerialPorts()
         {
-            if (e.Value) // ON
-            {
-                RestartAudioVisualizer();
-            }
-            else // OFF
-            {
-                await StopAudioVisualizerAsync();
-                ClearLightIndicators();
-            }
-        }
+            SerialPortPicker.Items.Clear();
+            var ports = SerialPort.GetPortNames();
 
-        private async void ConnectButton_Clicked(object sender, EventArgs e)
-        {
-            if (!isConnectedToArduino)
-                await ConnectToArduino();
+            if (ports.Length > 0)
+            {
+                foreach (var port in ports)
+                {
+                    SerialPortPicker.Items.Add(port);
+                }
+
+                SerialPortPicker.SelectedIndex = 0;
+                SerialPortPicker.IsEnabled = true;
+            }
             else
-                await DisconnectFromArduino();
+            {
+                SerialPortPicker.Title = "No Ports Available";
+                SerialPortPicker.IsEnabled = false;
+            }
         }
-
         private async Task CleanupSerialPort()
         {
             if (_serialPort != null)
@@ -285,6 +282,33 @@ namespace ArduinoAudioReactiveBulbMeter.App
                 }
             }
         }
+        #endregion
+
+        #region Events
+        private void RefreshPorts_Clicked(object sender, EventArgs e)
+        {
+            InitializeSerialPorts();
+        }
+        private async void AudioVisualizerSwitch_Toggled(object sender, ToggledEventArgs e)
+        {
+            if (e.Value) // ON
+            {
+                RestartAudioVisualizer();
+            }
+            else // OFF
+            {
+                await StopAudioVisualizerAsync();
+                ClearLightIndicators();
+            }
+        }
+
+        private async void ConnectButton_Clicked(object sender, EventArgs e)
+        {
+            if (!isConnectedToArduino)
+                await ConnectToArduino();
+            else
+                await DisconnectFromArduino();
+        }
 
         private async void MainPage_Disappearing(object? sender, EventArgs e)
         {
@@ -295,27 +319,6 @@ namespace ArduinoAudioReactiveBulbMeter.App
         {
             DisplayAvailableSoundOutput();
         }
-
-        private void InitializeSerialPorts()
-        {
-            SerialPortPicker.Items.Clear();
-            var ports = SerialPort.GetPortNames();
-
-            if (ports.Length > 0)
-            {
-                foreach (var port in ports)
-                {
-                    SerialPortPicker.Items.Add(port);
-                }
-
-                SerialPortPicker.SelectedIndex = 0;
-                SerialPortPicker.IsEnabled = true;
-            }
-            else
-            {
-                SerialPortPicker.Title = "No Ports Available";
-                SerialPortPicker.IsEnabled = false;
-            }
-        }
+        #endregion
     }
 }
