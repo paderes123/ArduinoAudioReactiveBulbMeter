@@ -28,7 +28,8 @@
                     <Picker x:Name="SerialPortPicker"
                           Title="Select Serial Port"/>
 
-                    <Button Text="Refresh Ports"/>
+                    <Button Text="Refresh Ports"
+                            Clicked="RefreshPorts_Clicked"/>
 
                     <Button x:Name="ConnectButton"
                           Text="Connect"
